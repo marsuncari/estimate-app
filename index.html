@@ -64,6 +64,67 @@ button{
   border-radius:20px;
   display:none;
 }
+
+#main{
+  max-width:1100px;
+}
+
+#main button{
+  width:auto;
+  margin-right:10px;
+  margin-bottom:10px;
+}
+
+#estimateSearch{
+  width:100%;
+  margin-top:18px;
+  margin-bottom:18px;
+}
+
+#estimateList table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:16px;
+  background:#fff;
+}
+
+#estimateList th{
+  background:#16324f;
+  color:#fff;
+  padding:12px;
+  font-size:13px;
+  text-align:left;
+}
+
+#estimateList td{
+  border-bottom:1px solid #e5e7eb;
+  padding:12px;
+  font-size:13px;
+}
+
+#estimateList tr:hover td{
+  background:#f8fafc;
+}
+
+#estimateList a{
+  display:inline-block;
+  background:#2e7d32;
+  color:#fff;
+  padding:7px 12px;
+  border-radius:8px;
+  text-decoration:none;
+  font-weight:bold;
+}
+
+@media(max-width:768px){
+  #estimateList{
+    overflow-x:auto;
+  }
+
+  #estimateList table{
+    min-width:900px;
+  }
+}  
 </style>
 </head>
 <body>
