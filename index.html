@@ -158,6 +158,16 @@ button{
 
   <div id="estimateList"></div>
 </div>
+ 
+  <div style="margin-top:20px; padding:15px; background:#f1f5f9; border-radius:10px;">
+  <h3>新規見積作成</h3>
+
+  <input id="newSubject" placeholder="件名（例：内装工事）">
+  <input id="newAmount" placeholder="金額">
+
+  <button onclick="saveEstimate()">保存</button>
+
+</div>
 
 <script>
 const GAS_URL = "https://script.google.com/macros/s/AKfycbwWXaFfTmenoNAG8BBO4hxwB6cd69TYocFIx-s9uKIUPz27_tiedtbPGIA_f8kSaYLkTA/exec";
@@ -310,6 +320,34 @@ function openPdf(url){
     window.open(url, "_blank");
   }
 }
+
+function saveEstimate(){
+  const subject = document.getElementById("newSubject").value.trim();
+  const amount = Number(document.getElementById("newAmount").value);
+
+  if(!subject || !amount){
+    alert("入力してください");
+    return;
+  }
+
+  fetch(GAS_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain" },
+    body: JSON.stringify({
+      action: "saveEstimateSimple",
+      companyId: currentUser.companyId,
+      subject: subject,
+      amount: amount
+    })
+  });
+
+  alert("保存しました");
+
+  document.getElementById("newSubject").value = "";
+  document.getElementById("newAmount").value = "";
+
+  setTimeout(loadEstimateList, 1000);
+}  
   
 </script>
 
