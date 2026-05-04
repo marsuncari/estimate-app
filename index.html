@@ -85,8 +85,13 @@ button{
 
 <div id="main">
   <h2 id="welcome"></h2>
-  <p>ログイン成功です。</p>
+
+  <button onclick="loadEstimateList()">見積一覧を表示</button>
   <button onclick="logout()">ログアウト</button>
+
+  <input id="estimateSearch" placeholder="顧客名・案件名・見積番号で検索" oninput="renderEstimateList()" style="margin-top:20px;">
+
+  <div id="estimateList"></div>
 </div>
 
 <script>
