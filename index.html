@@ -154,12 +154,7 @@ button{
   <button onclick="loadEstimateList()">見積一覧を表示</button>
   <button onclick="logout()">ログアウト</button>
 
-  <input id="estimateSearch" placeholder="顧客名・案件名・見積番号で検索" oninput="renderEstimateList()" style="margin-top:20px;">
-
-  <div id="estimateList"></div>
-</div>
- 
-  <div style="margin-top:20px; padding:15px; background:#f1f5f9; border-radius:10px;">
+   <div style="margin-top:20px; padding:15px; background:#f1f5f9; border-radius:10px;">
   <h3>新規見積作成</h3>
 
   <input id="newSubject" placeholder="件名（例：内装工事）">
@@ -168,6 +163,13 @@ button{
   <button onclick="saveEstimate()">保存</button>
 
 </div>
+
+  <input id="estimateSearch" placeholder="顧客名・案件名・見積番号で検索" oninput="renderEstimateList()" style="margin-top:20px;">
+
+  <div id="estimateList"></div>
+</div>
+ 
+ 
 
 <script>
 const GAS_URL = "https://script.google.com/macros/s/AKfycbwWXaFfTmenoNAG8BBO4hxwB6cd69TYocFIx-s9uKIUPz27_tiedtbPGIA_f8kSaYLkTA/exec";
