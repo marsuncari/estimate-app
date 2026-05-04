@@ -125,6 +125,10 @@ button{
     min-width:900px;
   }
 }  
+
+ #estimateList tr{
+  cursor:pointer;
+} 
 </style>
 </head>
 <body>
@@ -270,7 +274,7 @@ function renderEstimateList(){
 
   filtered.forEach(row => {
     html += `
-      <tr>
+      <tr onclick="openPdf('${row.pdfUrl}')">
         <td>${escapeHtml(row.estimateNo)}</td>
         <td>${escapeHtml(row.issueDate)}</td>
         <td>${escapeHtml(row.customerName)}</td>
@@ -279,7 +283,10 @@ function renderEstimateList(){
         <td>${Number(row.grandTotal || 0).toLocaleString()}円</td>
         <td>${escapeHtml(row.status)}</td>
         <td>
-          ${row.pdfUrl ? `<a href="${row.pdfUrl}" target="_blank">開く</a>` : ""}
+          ${row.pdfUrl 
+  ? `<a href="${row.pdfUrl}" target="_blank" onclick="event.stopPropagation()">開く</a>` 
+  : ""
+}
         </td>
       </tr>
     `;
@@ -296,6 +303,12 @@ function escapeHtml(str){
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+function openPdf(url){
+  if(url){
+    window.open(url, "_blank");
+  }
 }
   
 </script>
