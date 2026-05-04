@@ -145,6 +145,98 @@ function logout(){
   document.getElementById("password").value = "";
   document.getElementById("msg").innerText = "";
 }
+
+
+let estimateData = [];
+
+function loadEstimateList(){
+  if(!currentUser){
+    alert("ログインしてください");
+    return;
+  }
+
+  document.getElementById("estimateList").innerHTML = "読み込み中...";
+
+  const url =
+    GAS_URL +
+    "?api=1&action=estimateList" +
+    "&companyId=" + encodeURIComponent(currentUser.companyId);
+
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      estimateData = data || [];
+      renderEstimateList();
+    })
+    .catch(err => {
+      document.getElementById("estimateList").innerHTML =
+        "見積一覧の取得に失敗しました";
+      console.error(err);
+    });
+}
+
+function renderEstimateList(){
+  const keyword = document.getElementById("estimateSearch").value.trim().toLowerCase();
+  const area = document.getElementById("estimateList");
+
+  const filtered = estimateData.filter(row => {
+    return (
+      String(row.estimateNo || "").toLowerCase().includes(keyword) ||
+      String(row.customerName || "").toLowerCase().includes(keyword) ||
+      String(row.projectName || "").toLowerCase().includes(keyword) ||
+      String(row.subject || "").toLowerCase().includes(keyword)
+    );
+  });
+
+  if(filtered.length === 0){
+    area.innerHTML = "<p>見積データがありません。</p>";
+    return;
+  }
+
+  let html = `
+    <table>
+      <tr>
+        <th>見積番号</th>
+        <th>発行日</th>
+        <th>顧客名</th>
+        <th>案件名</th>
+        <th>件名</th>
+        <th>金額</th>
+        <th>状態</th>
+        <th>PDF</th>
+      </tr>
+  `;
+
+  filtered.forEach(row => {
+    html += `
+      <tr>
+        <td>${escapeHtml(row.estimateNo)}</td>
+        <td>${escapeHtml(row.issueDate)}</td>
+        <td>${escapeHtml(row.customerName)}</td>
+        <td>${escapeHtml(row.projectName)}</td>
+        <td>${escapeHtml(row.subject)}</td>
+        <td>${Number(row.grandTotal || 0).toLocaleString()}円</td>
+        <td>${escapeHtml(row.status)}</td>
+        <td>
+          ${row.pdfUrl ? `<a href="${row.pdfUrl}" target="_blank">開く</a>` : ""}
+        </td>
+      </tr>
+    `;
+  });
+
+  html += "</table>";
+  area.innerHTML = html;
+}
+
+function escapeHtml(str){
+  return String(str || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+  
 </script>
 
 </body>
