@@ -175,7 +175,11 @@ button{
 
    <select id="newProjectId">
   <option value="">案件を選択してください</option>
-　　</select>  
+　　</select>
+
+  <div id="selectedCustomer" style="margin-bottom:10px; font-weight:bold; color:#16324f;">
+  顧客：-
+</div>   
 
   <input id="newSubject" placeholder="件名（例：内装工事）">
   <input id="newAmount" placeholder="金額">
@@ -410,7 +414,14 @@ document.addEventListener("change", function(e){
     const project = (window.projectList || []).find(p => p.projectId === selectedId);
 
     if(project){
+      // 件名自動入力
       document.getElementById("newSubject").value = project.projectName;
+
+      // 👇 顧客名表示
+      document.getElementById("selectedCustomer").innerText =
+        "顧客：" + project.customerName;
+    }else{
+      document.getElementById("selectedCustomer").innerText = "顧客：-";
     }
   }
 });
