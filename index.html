@@ -181,6 +181,10 @@ button{
   顧客：-
 </div>   
 
+    <div id="estimateNoPreview" style="margin-bottom:10px; font-weight:bold; color:#0f172a;">
+  見積番号：-
+</div> 
+
   <input id="newSubject" placeholder="件名（例：内装工事）">
   <input id="newAmount" placeholder="金額">
 
@@ -229,6 +233,7 @@ function login(){
 
         loadEstimateList();
       loadProjectsForSelect();
+        loadNewEstimateNo(); // ←これ追加
 
       }else{
         document.getElementById("msg").innerText =
@@ -375,7 +380,10 @@ function saveEstimate(){
   document.getElementById("newSubject").value = "";
   document.getElementById("newAmount").value = "";
 
-  setTimeout(loadEstimateList, 1000);
+  setTimeout(() => {
+  loadEstimateList();
+  loadNewEstimateNo(); // ←次の番号更新
+}, 1000);
 }  
 
 
@@ -425,6 +433,21 @@ document.addEventListener("change", function(e){
     }
   }
 });
+
+function loadNewEstimateNo(){
+  const url = GAS_URL + "?api=1&action=newEstimateNo";
+
+  fetch(url)
+    .then(res => res.json())
+    .then(res => {
+      if(res.estimateNo){
+        document.getElementById("estimateNoPreview").innerText =
+          "見積番号：" + res.estimateNo;
+
+        window.currentEstimateNo = res.estimateNo;
+      }
+    });
+}  
   
 </script>
 
