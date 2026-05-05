@@ -353,7 +353,31 @@ function saveEstimate(){
 
   setTimeout(loadEstimateList, 1000);
 }  
-  
+
+
+ function loadProjectsForSelect(){
+  const select = document.getElementById("newProjectId");
+  if(!select || !currentUser) return;
+
+  select.innerHTML = `<option value="">案件を選択してください</option>`;
+
+  const url =
+    GAS_URL +
+    "?api=1&action=projects" +
+    "&companyId=" + encodeURIComponent(currentUser.companyId);
+
+  fetch(url)
+    .then(res => res.json())
+    .then(projects => {
+      projects.forEach(p => {
+        const option = document.createElement("option");
+        option.value = p.projectId;
+        option.textContent =
+          `${p.customerName || ""} / ${p.projectName || ""} / ${p.constructionName || ""}`;
+        select.appendChild(option);
+      });
+    });
+} 
 </script>
 
 </body>
