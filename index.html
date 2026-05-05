@@ -203,6 +203,9 @@ function login(){
         document.getElementById("welcome").innerText =
           "ようこそ " + res.userName + " さん";
 
+        loadEstimateList();
+      loadProjectsForSelect();
+
       }else{
         document.getElementById("msg").innerText =
           "ログインID または パスワードが違います";
