@@ -368,11 +368,14 @@ function saveEstimate(){
     method: "POST",
     headers: { "Content-Type": "text/plain" },
     body: JSON.stringify({
-      action: "saveEstimateSimple",
-      companyId: currentUser.companyId,
-      subject: subject,
-      amount: amount
-    })
+  action: "saveEstimateSimple",
+  companyId: currentUser.companyId,
+  projectId: projectId,
+  subject: subject,
+  amount: amount,
+  estimateNo: window.currentEstimateNo,
+  createdBy: currentUser.userName
+})
   });
 
   alert("保存しました");
