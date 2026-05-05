@@ -356,11 +356,17 @@ function openPdf(url){
 }
 
 function saveEstimate(){
+  const projectId = document.getElementById("newProjectId").value;
   const subject = document.getElementById("newSubject").value.trim();
   const amount = Number(document.getElementById("newAmount").value);
 
+  if(!projectId){
+    alert("案件を選択してください");
+    return;
+  }
+
   if(!subject || !amount){
-    alert("入力してください");
+    alert("件名と金額を入力してください");
     return;
   }
 
@@ -368,26 +374,27 @@ function saveEstimate(){
     method: "POST",
     headers: { "Content-Type": "text/plain" },
     body: JSON.stringify({
-  action: "saveEstimateSimple",
-  companyId: currentUser.companyId,
-  projectId: projectId,
-  subject: subject,
-  amount: amount,
-  estimateNo: window.currentEstimateNo,
-  createdBy: currentUser.userName
-})
+      action: "saveEstimateSimple",
+      companyId: currentUser.companyId,
+      projectId: projectId,
+      subject: subject,
+      amount: amount,
+      estimateNo: window.currentEstimateNo,
+      createdBy: currentUser.userName
+    })
   });
 
   alert("保存しました");
 
+  document.getElementById("newProjectId").value = "";
   document.getElementById("newSubject").value = "";
   document.getElementById("newAmount").value = "";
 
   setTimeout(() => {
-  loadEstimateList();
-  loadNewEstimateNo(); // ←次の番号更新
-}, 1000);
-}  
+    loadEstimateList();
+    loadNewEstimateNo();
+  }, 1000);
+}
 
 
  function loadProjectsForSelect(){
