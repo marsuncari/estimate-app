@@ -389,15 +389,32 @@ function saveEstimate(){
   fetch(url)
     .then(res => res.json())
     .then(projects => {
+
+      // 👇 これ追加（グローバルに保持）
+      window.projectList = projects;
+
       projects.forEach(p => {
         const option = document.createElement("option");
         option.value = p.projectId;
         option.textContent =
-          `${p.customerName || ""} / ${p.projectName || ""} / ${p.constructionName || ""}`;
+          `${p.customerName} / ${p.projectName}`;
         select.appendChild(option);
       });
     });
-} 
+}
+
+document.addEventListener("change", function(e){
+  if(e.target.id === "newProjectId"){
+    const selectedId = e.target.value;
+
+    const project = (window.projectList || []).find(p => p.projectId === selectedId);
+
+    if(project){
+      document.getElementById("newSubject").value = project.projectName;
+    }
+  }
+});
+  
 </script>
 
 </body>
