@@ -459,27 +459,41 @@ function handleEnterKey(e){
 
   e.preventDefault();
 
-  const inputs = Array.from(document.querySelectorAll("#detailBody input"));
-  const index = inputs.indexOf(e.target);
+  const current = e.target;
+  const td = current.closest("td");
+  const tr = current.closest("tr");
 
-  if(index === -1) return;
+  const cells = Array.from(tr.querySelectorAll("input:not([readonly])"));
+  const index = cells.indexOf(current);
 
-  const next = inputs[index + 1];
-
-  if(next){
-    next.focus();
-    next.select();
+  // 同じ行の次のセルへ
+  if(index < cells.length - 1){
+    cells[index + 1].focus();
+    cells[index + 1].select();
   }else{
-    // 最後なら新しい行追加
-    addDetailRow();
+    // 次の行へ
+    const nextTr = tr.nextElementSibling;
 
-    const newInputs = document.querySelectorAll("#detailBody tr:last-child input");
-    if(newInputs[0]){
-      newInputs[0].focus();
+    if(nextTr){
+      const nextInput = nextTr.querySelector("input:not([readonly])");
+      if(nextInput){
+        nextInput.focus();
+        nextInput.select();
+      }
+    }else{
+      // 最終行なら新規追加
+      addDetailRow();
+
+      const newTr = tr.nextElementSibling;
+      if(newTr){
+        const firstInput = newTr.querySelector("input:not([readonly])");
+        if(firstInput){
+          firstInput.focus();
+        }
+      }
     }
   }
-}  
-
+}
 function copyDetailRow(btn){
   const tr = btn.closest("tr");
 
