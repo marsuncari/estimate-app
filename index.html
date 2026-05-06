@@ -355,6 +355,7 @@ function openPdf(url){
   }
 }
 
+
 function saveEstimate(){
   const projectId = document.getElementById("newProjectId").value;
   const subject = document.getElementById("newSubject").value.trim();
@@ -382,18 +383,34 @@ function saveEstimate(){
       estimateNo: window.currentEstimateNo,
       createdBy: currentUser.userName
     })
+  })
+  .then(res => res.json())
+  .then(res => {
+    if(res.success){
+      alert("保存とPDF作成が完了しました");
+
+      document.getElementById("newProjectId").value = "";
+      document.getElementById("newSubject").value = "";
+      document.getElementById("newAmount").value = "";
+      document.getElementById("selectedCustomer").innerText = "顧客：-";
+
+      loadEstimateList();
+      loadNewEstimateNo();
+
+      // PDFを自動で開きたい場合
+      if(res.pdfUrl){
+        window.open(res.pdfUrl, "_blank");
+      }
+
+    }else{
+      alert("保存に失敗しました");
+      console.log(res);
+    }
+  })
+  .catch(err => {
+    alert("通信エラーです");
+    console.error(err);
   });
-
-  alert("保存しました");
-
-  document.getElementById("newProjectId").value = "";
-  document.getElementById("newSubject").value = "";
-  document.getElementById("newAmount").value = "";
-
-  setTimeout(() => {
-    loadEstimateList();
-    loadNewEstimateNo();
-  }, 1000);
 }
 
 
