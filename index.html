@@ -5,7 +5,7 @@
 <title>建築見積システム</title>
 <style>
 body{
-  font-family:sans-serif;
+  font-family:sans-serif;<th>PDF</th>
   background:linear-gradient(135deg,#eef2f7,#f8fafc);
   padding:30px;
 }
@@ -358,6 +358,7 @@ function renderEstimateList(){
         <th>金額</th>
         <th>状態</th>
         <th>PDF</th>
+　　　　 <th>請求書</th>
       </tr>
   `;
 
@@ -377,6 +378,12 @@ function renderEstimateList(){
   : ""
 }
         </td>
+
+        <td>
+  <button onclick="event.stopPropagation(); createInvoiceFromEstimateWeb('${row.estimateId}')">
+    請求書作成
+  </button>
+</td>
       </tr>
     `;
   });
@@ -539,6 +546,58 @@ document.addEventListener("change", function(e){
     }
   }
 });
+
+function createInvoiceFromEstimateWeb(estimateId){
+  if(!estimateId){
+    alert("見積IDがありません");
+    return;
+  }
+
+  if(!confirm("この見積から請求書を作成しますか？")){
+    return;
+  }
+
+  document.getElementById("loadingLayer").style.display = "block";
+  document.getElementById("spinner").style.display = "block";
+  document.getElementById("successIcon").style.display = "none";
+  document.getElementById("loadingText").innerText = "請求書作成中...";
+
+  fetch(GAS_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain" },
+    body: JSON.stringify({
+      action: "createInvoiceFromEstimate",
+      estimateId: estimateId,
+      userName: currentUser.userName
+    })
+  })
+  .then(res => res.json())
+  .then(res => {
+    if(res.success){
+      document.getElementById("spinner").style.display = "none";
+      document.getElementById("successIcon").style.display = "block";
+      document.getElementById("loadingText").innerText = "請求書を作成しました";
+
+      if(res.pdfUrl){
+        window.open(res.pdfUrl, "_blank");
+      }
+
+      setTimeout(()=>{
+        document.getElementById("loadingLayer").style.display = "none";
+      }, 1000);
+
+    }else{
+      document.getElementById("loadingLayer").style.display = "none";
+      alert("請求書作成に失敗しました");
+      console.log(res);
+    }
+  })
+  .catch(err => {
+    document.getElementById("loadingLayer").style.display = "none";
+    alert("通信エラー");
+    console.error(err);
+  });
+}  
 
 function loadNewEstimateNo(){
   const url = GAS_URL + "?api=1&action=newEstimateNo";
