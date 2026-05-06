@@ -235,18 +235,27 @@ button{
 
 <h4>見積明細</h4>
 
+<div style="margin-bottom:10px;">
+  掛け率：
+  <input id="globalRate" type="number" step="0.01" value="1.5"
+    style="width:90px; padding:8px;"
+    oninput="calcDetailTotals()">
+</div>     
+
 <table id="detailTable" style="width:100%; border-collapse:collapse; margin-bottom:12px;">
   <thead>
     <tr style="background:#e5e7eb;">
-      <th>項目</th>
-      <th>仕様</th>
-      <th>数量</th>
-      <th>単位</th>
-      <th>単価</th>
-      <th>金額</th>
-      <th>備考</th>
-      <th></th>
-    </tr>
+  <th>種別</th>
+  <th>項目</th>
+  <th>仕様</th>
+  <th>数量</th>
+  <th>単位</th>
+  <th>仕入単価</th>
+  <th>見積単価</th>
+  <th>金額</th>
+  <th>備考</th>
+  <th></th>
+</tr>
   </thead>
   <tbody id="detailBody"></tbody>
 </table>
@@ -436,23 +445,120 @@ function addDetailRow(copyData){
   const tbody = document.getElementById("detailBody");
   const tr = document.createElement("tr");
 
- tr.innerHTML = `
-  <td><input class="d-item" placeholder="項目" value="${copyData?.itemName || ""}" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
-  <td><input class="d-spec" placeholder="仕様" value="${copyData?.specification || ""}" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
-  <td><input class="d-qty" type="number" value="${copyData?.quantity || 1}" oninput="calcDetailTotals()" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
-  <td><input class="d-unit" placeholder="式" value="${copyData?.unit || ""}" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
-  <td><input class="d-price" type="number" value="${copyData?.unitPrice || 0}" oninput="calcDetailTotals()" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
-  <td><input class="d-amount" type="number" value="0" readonly></td>
-  <td><input class="d-remark" placeholder="備考" value="${copyData?.remark || ""}" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
-  <td>
-    <button type="button" onclick="copyDetailRow(this)">複製</button>
-    <button type="button" onclick="this.closest('tr').remove(); calcDetailTotals();">削除</button>
-  </td>
-`;
+  const lineType = copyData?.lineType || "DETAIL";
+
+  tr.innerHTML = `
+    <td>
+      <select class="d-lineType" onchange="applyLineType(this.closest('tr')); calcDetailTotals();">
+        <option value="DETAIL" ${lineType === "DETAIL" ? "selected" : ""}>通常</option>
+        <option value="HEADER" ${lineType === "HEADER" ? "selected" : ""}>タイトル</option>
+        <option value="NOTE" ${lineType === "NOTE" ? "selected" : ""}>コメント</option>
+        <option value="BLANK" ${lineType === "BLANK" ? "selected" : ""}>空白</option>
+      </select>
+    </td>
+    <td><input class="d-item" placeholder="項目" value="${copyData?.itemName || ""}" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
+    <td><input class="d-spec" placeholder="仕様" value="${copyData?.specification || ""}" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
+    <td><input class="d-qty" type="number" value="${copyData?.quantity || 1}" oninput="calcDetailTotals()" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
+    <td><input class="d-unit" placeholder="式" value="${copyData?.unit || ""}" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
+    <td><input class="d-cost" type="number" value="${copyData?.costPrice || 0}" oninput="calcDetailTotals()" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
+    <td><input class="d-price" type="number" value="${copyData?.unitPrice || 0}" oninput="calcDetailTotals()" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
+    <td><input class="d-amount" type="number" value="0" readonly></td>
+    <td><input class="d-remark" placeholder="備考" value="${copyData?.remark || ""}" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
+    <td>
+      <button type="button" onclick="copyDetailRow(this)">複製</button>
+      <button type="button" onclick="this.closest('tr').remove(); calcDetailTotals();">削除</button>
+    </td>
+  `;
 
   tbody.appendChild(tr);
+  applyLineType(tr);
   calcDetailTotals();
 }
+
+function addTitleRow(){
+  addDetailRow({
+    lineType: "HEADER",
+    itemName: "【工事項目】",
+    quantity: "",
+    unit: "",
+    costPrice: 0,
+    unitPrice: 0
+  });
+}
+
+function addCommentRow(){
+  addDetailRow({
+    lineType: "NOTE",
+    itemName: "※コメントを入力してください",
+    quantity: "",
+    unit: "",
+    costPrice: 0,
+    unitPrice: 0
+  });
+}
+
+function addBlankRow(){
+  addDetailRow({
+    lineType: "BLANK",
+    itemName: "",
+    quantity: "",
+    unit: "",
+    costPrice: 0,
+    unitPrice: 0
+  });
+}
+
+function addDiscountRow(){
+  addDetailRow({
+    lineType: "DETAIL",
+    itemName: "値引き",
+    quantity: 1,
+    unit: "式",
+    costPrice: 0,
+    unitPrice: -1000
+  });
+}  
+
+function applyLineType(tr){
+  const lineType = tr.querySelector(".d-lineType").value;
+
+  const item = tr.querySelector(".d-item");
+  const spec = tr.querySelector(".d-spec");
+  const qty = tr.querySelector(".d-qty");
+  const unit = tr.querySelector(".d-unit");
+  const cost = tr.querySelector(".d-cost");
+  const price = tr.querySelector(".d-price");
+  const amount = tr.querySelector(".d-amount");
+  const remark = tr.querySelector(".d-remark");
+
+  const isDetail = lineType === "DETAIL";
+
+  [qty, unit, cost, price, amount].forEach(el => {
+    el.disabled = !isDetail;
+  });
+
+  if(lineType === "HEADER"){
+    tr.style.background = "#e9ecef";
+    item.placeholder = "タイトル";
+    spec.disabled = true;
+    remark.disabled = true;
+  }else if(lineType === "NOTE"){
+    tr.style.background = "#fffbe6";
+    item.placeholder = "コメント";
+    spec.disabled = true;
+    remark.disabled = false;
+  }else if(lineType === "BLANK"){
+    tr.style.background = "#fff";
+    item.value = "";
+    spec.value = "";
+    remark.value = "";
+  }else{
+    tr.style.background = "";
+    item.placeholder = "項目";
+    spec.disabled = false;
+    remark.disabled = false;
+  }
+}  
 
 function handleEnterKey(e){
   if(e.key !== "Enter") return;
@@ -585,13 +691,30 @@ function initDetailRows(){
   
 function calcDetailTotals(){
   let subtotal = 0;
+  const globalRate = Number(document.getElementById("globalRate")?.value || 1);
 
   document.querySelectorAll("#detailBody tr").forEach(tr => {
-    const qty = Number(tr.querySelector(".d-qty").value || 0);
-    const price = Number(tr.querySelector(".d-price").value || 0);
-    const amount = qty * price;
+    const lineType = tr.querySelector(".d-lineType")?.value || "DETAIL";
 
+    if(lineType !== "DETAIL"){
+      const amountInput = tr.querySelector(".d-amount");
+      if(amountInput) amountInput.value = "";
+      return;
+    }
+
+    const qty = Number(tr.querySelector(".d-qty").value || 0);
+    const costPrice = Number(tr.querySelector(".d-cost").value || 0);
+    let unitPrice = Number(tr.querySelector(".d-price").value || 0);
+
+    // 仕入単価が入っていれば、仕入単価 × 全体掛け率
+    if(costPrice !== 0){
+      unitPrice = Math.round(costPrice * globalRate);
+      tr.querySelector(".d-price").value = unitPrice;
+    }
+
+    const amount = qty * unitPrice;
     tr.querySelector(".d-amount").value = amount;
+
     subtotal += amount;
   });
 
@@ -609,20 +732,38 @@ function getDetailRows(){
   const details = [];
 
   document.querySelectorAll("#detailBody tr").forEach(tr => {
+    const lineType = tr.querySelector(".d-lineType")?.value || "DETAIL";
     const itemName = tr.querySelector(".d-item").value.trim();
+
+    if(lineType === "BLANK"){
+      details.push({
+        lineType: "NOTE",
+        itemName: "",
+        specification: "",
+        quantity: "",
+        unit: "",
+        costPrice: 0,
+        unitPrice: 0,
+        amount: 0,
+        remark: ""
+      });
+      return;
+    }
 
     if(itemName){
       const quantity = Number(tr.querySelector(".d-qty").value || 0);
+      const costPrice = Number(tr.querySelector(".d-cost").value || 0);
       const unitPrice = Number(tr.querySelector(".d-price").value || 0);
-      const amount = quantity * unitPrice;
+      const amount = lineType === "DETAIL" ? quantity * unitPrice : 0;
 
       details.push({
-        lineType: "DETAIL",
+        lineType: lineType,
         itemName: itemName,
         specification: tr.querySelector(".d-spec").value.trim(),
-        quantity: quantity,
-        unit: tr.querySelector(".d-unit").value.trim(),
-        unitPrice: unitPrice,
+        quantity: lineType === "DETAIL" ? quantity : "",
+        unit: lineType === "DETAIL" ? tr.querySelector(".d-unit").value.trim() : "",
+        costPrice: costPrice,
+        unitPrice: lineType === "DETAIL" ? unitPrice : "",
         amount: amount,
         remark: tr.querySelector(".d-remark").value.trim()
       });
@@ -631,7 +772,6 @@ function getDetailRows(){
 
   return details;
 }
-
 function saveEstimate(){
   const projectId = document.getElementById("newProjectId").value;
   const subject = document.getElementById("newSubject").value.trim();
