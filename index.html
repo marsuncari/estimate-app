@@ -1086,14 +1086,19 @@ function editEstimate(estimateId){
 function toggleProjectForm(){
   const form = document.getElementById("projectForm");
 
-  if(form.style.display === "none"){
+  if(!form){
+    alert("projectForm が見つかりません");
+    return;
+  }
+
+  if(form.style.display === "none" || form.style.display === ""){
     form.style.display = "block";
-    loadCustomersForSelect(); // ←ここ追加
+    loadCustomersForSelect();
   }else{
     form.style.display = "none";
   }
 }
-
+  
 function saveProjectFromEstimate(){
   const customerId = document.getElementById("projectCustomerId").value;
   const projectName = document.getElementById("projectName").value.trim();
@@ -1143,10 +1148,15 @@ function saveProjectFromEstimate(){
   });
 }  
 
- function loadCustomersForSelect(){
+function loadCustomersForSelect(){
   if(!currentUser) return;
 
   const select = document.getElementById("projectCustomerId");
+
+  if(!select){
+    alert("projectCustomerId が見つかりません");
+    return;
+  }
 
   select.innerHTML = `<option value="">顧客を選択してください</option>`;
 
@@ -1158,19 +1168,18 @@ function saveProjectFromEstimate(){
   fetch(url)
     .then(res => res.json())
     .then(customers => {
-
       customers.forEach(c => {
         const option = document.createElement("option");
         option.value = c.customerId;
         option.textContent = c.customerName;
         select.appendChild(option);
       });
-
     })
     .catch(err => {
-      console.error("顧客取得エラー", err);
+      alert("顧客取得で通信エラー");
+      console.error(err);
     });
-} 
+}
   
 </script>
 <script>
