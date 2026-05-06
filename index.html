@@ -281,6 +281,7 @@ button{
 <script>
 const GAS_URL = "https://script.google.com/macros/s/AKfycbwWXaFfTmenoNAG8BBO4hxwB6cd69TYocFIx-s9uKIUPz27_tiedtbPGIA_f8kSaYLkTA/exec";
 let currentUser = null;
+let editingEstimateId = null;  
 
 function login(){
   const loginId = document.getElementById("loginId").value.trim();
@@ -393,6 +394,7 @@ function renderEstimateList(){
         <th>金額</th>
         <th>状態</th>
         <th>PDF</th>
+        <th>編集</th>
 　　　　 <th>請求書</th>
       </tr>
   `;
@@ -413,6 +415,12 @@ function renderEstimateList(){
   : ""
 }
         </td>
+
+        <td>
+        <button onclick="event.stopPropagation(); editEstimate('${row.estimateId}')">
+          編集
+        </button>
+      </td>
 
         <td>
   <button onclick="event.stopPropagation(); createInvoiceFromEstimateWeb('${row.estimateId}')">
@@ -822,8 +830,9 @@ function saveEstimate(){
   fetch(GAS_URL, {
     method: "POST",
     headers: { "Content-Type": "text/plain" },
-    body: JSON.stringify({
-      action: "saveEstimateSimple",
+   body: JSON.stringify({
+  　　action: editingEstimateId ? "updateEstimateSimple" : "saveEstimateSimple",
+  　　estimateId: editingEstimateId,
       companyId: currentUser.companyId,
       projectId: projectId,
       subject: subject,
@@ -996,6 +1005,63 @@ function loadNewEstimateNo(){
 
         window.currentEstimateNo = res.estimateNo;
       }
+    });
+} 
+
+function editEstimate(estimateId){
+  if(!estimateId){
+    alert("見積IDがありません");
+    return;
+  }
+
+  const url =
+    GAS_URL +
+    "?api=1&action=getEstimateEditData" +
+    "&estimateId=" + encodeURIComponent(estimateId);
+
+  fetch(url)
+    .then(res => res.json())
+    .then(res => {
+      if(!res.success){
+        alert("見積データの取得に失敗しました");
+        console.log(res);
+        return;
+      }
+
+      editingEstimateId = estimateId;
+
+      const h = res.header;
+
+      document.getElementById("newProjectId").value = h.projectId || "";
+      document.getElementById("newSubject").value = h.subject || "";
+      document.getElementById("estimateNoPreview").innerText =
+        "見積番号：" + (h.estimateNo || "");
+
+      window.currentEstimateNo = h.estimateNo || "";
+
+      const tbody = document.getElementById("detailBody");
+      tbody.innerHTML = "";
+
+      (res.details || []).forEach(d => {
+        addDetailRow(d);
+      });
+
+      if((res.details || []).length === 0){
+        initDetailRows();
+      }
+
+      calcDetailTotals();
+
+      const saveBtn = document.querySelector('button[onclick="saveEstimate()"]');
+      if(saveBtn){
+        saveBtn.innerText = "更新";
+      }
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    })
+    .catch(err => {
+      alert("通信エラー");
+      console.error(err);
     });
 }  
   
