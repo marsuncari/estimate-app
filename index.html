@@ -219,7 +219,21 @@ button{
    <div style="margin-top:20px; padding:15px; background:#f1f5f9; border-radius:10px;">
   <h3>新規見積作成</h3>
 
+   
+   <button type="button" onclick="toggleCustomerForm()">＋ 新規顧客追加</button> 
    <button type="button" onclick="toggleProjectForm()">＋ 新規案件追加</button>
+
+    <div id="customerForm" style="display:none; margin-top:15px; padding:15px; background:#fff; border-radius:10px;">
+  <h4>新規顧客追加</h4>
+
+  <input id="customerName" placeholder="顧客名">
+  <input id="customerDept" placeholder="部署名">
+  <input id="customerPerson" placeholder="担当者名">
+  <input id="customerTel" placeholder="電話番号">
+  <input id="customerEmail" placeholder="メール">
+
+  <button type="button" onclick="saveCustomerFromUI()">顧客を保存</button>
+</div> 
 
    <div id="projectForm" style="display:none; margin-top:15px; padding:15px; background:#fff; border-radius:10px;">
   <h4>新規案件追加</h4>
@@ -1182,6 +1196,66 @@ function loadCustomersForSelect(){
       console.error(err);
     });
 }
+
+function toggleCustomerForm(){
+  const form = document.getElementById("customerForm");
+
+  if(form.style.display === "none" || form.style.display === ""){
+    form.style.display = "block";
+  }else{
+    form.style.display = "none";
+  }
+}  
+
+function saveCustomerFromUI(){
+
+  const name = document.getElementById("customerName").value.trim();
+
+  if(!name){
+    alert("顧客名を入力してください");
+    return;
+  }
+
+  fetch(GAS_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain" },
+    body: JSON.stringify({
+      action: "saveCustomer",
+      customerData: {
+        companyId: currentUser.companyId,
+        customerName: name,
+        department: document.getElementById("customerDept").value.trim(),
+        personInCharge: document.getElementById("customerPerson").value.trim(),
+        tel: document.getElementById("customerTel").value.trim(),
+        email: document.getElementById("customerEmail").value.trim(),
+        postalCode: "",
+        address1: "",
+        address2: "",
+        honorific: "御中",
+        notes: ""
+      }
+    })
+  })
+  .then(res => res.json())
+  .then(res => {
+    if(res.success){
+      alert("顧客を追加しました");
+
+      document.getElementById("customerForm").style.display = "none";
+
+      // ←ここ超重要
+      loadCustomersForSelect();
+
+    }else{
+      alert("顧客保存失敗");
+      console.log(res);
+    }
+  })
+  .catch(err => {
+    alert("通信エラー");
+    console.error(err);
+  });
+}  
   
 </script>
 <script>
