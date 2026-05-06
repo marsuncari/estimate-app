@@ -1085,7 +1085,13 @@ function editEstimate(estimateId){
 
 function toggleProjectForm(){
   const form = document.getElementById("projectForm");
-  form.style.display = form.style.display === "none" ? "block" : "none";
+
+  if(form.style.display === "none"){
+    form.style.display = "block";
+    loadCustomersForSelect(); // ←ここ追加
+  }else{
+    form.style.display = "none";
+  }
 }
 
 function saveProjectFromEstimate(){
@@ -1136,6 +1142,35 @@ function saveProjectFromEstimate(){
     console.error(err);
   });
 }  
+
+ function loadCustomersForSelect(){
+  if(!currentUser) return;
+
+  const select = document.getElementById("projectCustomerId");
+
+  select.innerHTML = `<option value="">顧客を選択してください</option>`;
+
+  const url =
+    GAS_URL +
+    "?api=1&action=customers" +
+    "&companyId=" + encodeURIComponent(currentUser.companyId);
+
+  fetch(url)
+    .then(res => res.json())
+    .then(customers => {
+
+      customers.forEach(c => {
+        const option = document.createElement("option");
+        option.value = c.customerId;
+        option.textContent = c.customerName;
+        select.appendChild(option);
+      });
+
+    })
+    .catch(err => {
+      console.error("顧客取得エラー", err);
+    });
+} 
   
 </script>
 <script>
