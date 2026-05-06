@@ -1117,19 +1117,21 @@ function saveProjectFromEstimate(){
     method: "POST",
     headers: { "Content-Type": "text/plain" },
     body: JSON.stringify({
-      action: "saveProject",
-      companyId: currentUser.companyId,
-      customerId: customerId,
-      projectName: projectName,
-      constructionName: document.getElementById("constructionName").value.trim(),
-      siteName: document.getElementById("siteName").value.trim(),
-      siteAddress: document.getElementById("siteAddress").value.trim(),
-      paymentTerms: document.getElementById("projectPaymentTerms").value.trim(),
-      status: "進行中",
-      notes: "",
-      createdBy: currentUser.userName,
-      updatedBy: currentUser.userName
-    })
+  action: "saveProject",
+  projectData: {
+    companyId: currentUser.companyId,
+    customerId: customerId,
+    projectName: projectName,
+    constructionName: document.getElementById("constructionName").value.trim(),
+    siteName: document.getElementById("siteName").value.trim(),
+    siteAddress: document.getElementById("siteAddress").value.trim(),
+    paymentTerms: document.getElementById("projectPaymentTerms").value.trim(),
+    status: "進行中",
+    notes: "",
+    createdBy: currentUser.userName,
+    updatedBy: currentUser.userName
+  }
+})
   })
   .then(res => res.json())
   .then(res => {
