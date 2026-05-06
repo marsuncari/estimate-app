@@ -436,19 +436,19 @@ function addDetailRow(copyData){
   const tbody = document.getElementById("detailBody");
   const tr = document.createElement("tr");
 
-  tr.innerHTML = `
-    <td><input class="d-item" placeholder="項目" value="${copyData?.itemName || ""}"></td>
-    <td><input class="d-spec" placeholder="仕様" value="${copyData?.specification || ""}"></td>
-    <td><input class="d-qty" type="number" value="${copyData?.quantity || 1}" oninput="calcDetailTotals()"></td>
-    <td><input class="d-unit" placeholder="式" value="${copyData?.unit || ""}"></td>
-    <td><input class="d-price" type="number" value="${copyData?.unitPrice || 0}" oninput="calcDetailTotals()"></td>
-    <td><input class="d-amount" type="number" value="0" readonly></td>
-    <td><input class="d-remark" placeholder="備考" value="${copyData?.remark || ""}"></td>
-    <td>
-      <button type="button" onclick="copyDetailRow(this)">複製</button>
-      <button type="button" onclick="this.closest('tr').remove(); calcDetailTotals();">削除</button>
-    </td>
-  `;
+ tr.innerHTML = `
+  <td><input class="d-item" placeholder="項目" value="${copyData?.itemName || ""}" onkeydown="handleEnterKey(event)"></td>
+  <td><input class="d-spec" placeholder="仕様" value="${copyData?.specification || ""}" onkeydown="handleEnterKey(event)"></td>
+  <td><input class="d-qty" type="number" value="${copyData?.quantity || 1}" oninput="calcDetailTotals()" onkeydown="handleEnterKey(event)"></td>
+  <td><input class="d-unit" placeholder="式" value="${copyData?.unit || ""}" onkeydown="handleEnterKey(event)"></td>
+  <td><input class="d-price" type="number" value="${copyData?.unitPrice || 0}" oninput="calcDetailTotals()" onkeydown="handleEnterKey(event)"></td>
+  <td><input class="d-amount" type="number" value="0" readonly></td>
+  <td><input class="d-remark" placeholder="備考" value="${copyData?.remark || ""}" onkeydown="handleEnterKey(event)"></td>
+  <td>
+    <button type="button" onclick="copyDetailRow(this)">複製</button>
+    <button type="button" onclick="this.closest('tr').remove(); calcDetailTotals();">削除</button>
+  </td>
+`;
 
   tbody.appendChild(tr);
   calcDetailTotals();
