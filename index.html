@@ -107,13 +107,14 @@ button{
 }
 
 #estimateList a{
-  display:inline-block;
-  background:#2e7d32;
-  color:#fff;
-  padding:7px 12px;
-  border-radius:8px;
-  text-decoration:none;
-  font-weight:bold;
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  white-space: nowrap !important;
+  min-width: 60px;   /* ←これ重要 */
+  height: 36px;
+  padding: 6px 10px;
+  border-radius: 10px;
 }
 
 @media(max-width:768px){
@@ -258,6 +259,64 @@ button:hover{
   display:flex;
   gap:8px;
 }
+
+/* 見積一覧：列幅とボタン配置を整える */
+#estimateList table{
+  table-layout: auto;
+}
+
+#estimateList th,
+#estimateList td{
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+#estimateList td:nth-child(5){
+  white-space: normal; /* 件名だけ長文OK */
+  min-width: 120px;
+}
+
+#estimateList td:nth-child(8),
+#estimateList td:nth-child(9),
+#estimateList td:nth-child(10){
+  text-align: center;
+}
+
+/* PDF・編集・請求書ボタンを横文字固定 */
+#estimateList a,
+#estimateList button{
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  white-space: nowrap !important;
+  min-width: 70px;
+  height: 36px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-weight:bold;
+}
+
+/* PDF 開く */
+#estimateList a{
+  background:#2e7d32 !important;
+  color:#fff !important;
+  text-decoration:none !important;
+}
+
+/* 編集 */
+#estimateList button.edit-btn{
+  background:#1976d2 !important;
+  color:#fff !important;
+  border:none !important;
+}
+
+/* 請求書作成 */
+#estimateList button.invoice-btn{
+  background:#2e7d32 !important;
+  color:#fff !important;
+  border:none !important;
+  min-width: 110px;
+}  
 </style>
 </head>
 <body>
