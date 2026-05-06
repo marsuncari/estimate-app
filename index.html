@@ -758,10 +758,14 @@ function getDetailRows(){
     if(itemName){
       const quantity = Number(tr.querySelector(".d-qty").value || 0);
       const costPrice = Number(tr.querySelector(".d-cost").value || 0);
-     
 
-　　　const unitPrice = costPrice * globalRate;
-      const amount = lineType === "DETAIL" ? quantity * unitPrice : 0;
+      let unitPrice = 0;
+      let amount = 0;
+
+      if(lineType === "DETAIL"){
+        unitPrice = Number(tr.querySelector(".d-price").value || 0);
+        amount = Number(tr.querySelector(".d-amount").value || 0);
+      }
 
       details.push({
         lineType: lineType,
@@ -771,7 +775,7 @@ function getDetailRows(){
         unit: lineType === "DETAIL" ? tr.querySelector(".d-unit").value.trim() : "",
         costPrice: costPrice,
         unitPrice: lineType === "DETAIL" ? unitPrice : "",
-        amount: amount,
+        amount: lineType === "DETAIL" ? amount : 0,
         remark: tr.querySelector(".d-remark").value.trim()
       });
     }
@@ -779,6 +783,8 @@ function getDetailRows(){
 
   return details;
 }
+
+  
 function saveEstimate(){
   const projectId = document.getElementById("newProjectId").value;
   const subject = document.getElementById("newSubject").value.trim();
