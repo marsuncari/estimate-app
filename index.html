@@ -232,9 +232,34 @@ button{
 </div> 
 
   <input id="newSubject" placeholder="件名（例：内装工事）">
-  <input id="newAmount" placeholder="金額">
 
-  <button onclick="saveEstimate()">保存</button>
+<h4>見積明細</h4>
+
+<table id="detailTable" style="width:100%; border-collapse:collapse; margin-bottom:12px;">
+  <thead>
+    <tr style="background:#e5e7eb;">
+      <th>項目</th>
+      <th>仕様</th>
+      <th>数量</th>
+      <th>単位</th>
+      <th>単価</th>
+      <th>金額</th>
+      <th>備考</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody id="detailBody"></tbody>
+</table>
+
+<button type="button" onclick="addDetailRow()">＋ 明細追加</button>
+
+<div style="margin-top:14px; text-align:right; font-weight:bold;">
+  <div>小計：<span id="subtotalPreview">0</span>円</div>
+  <div>消費税：<span id="taxPreview">0</span>円</div>
+  <div style="font-size:18px;">合計：<span id="totalPreview">0</span>円</div>
+</div>
+
+<button onclick="saveEstimate()">保存</button>
 </div>
 
   <input id="estimateSearch" placeholder="顧客名・案件名・見積番号で検索" oninput="renderEstimateList()" style="margin-top:20px;">
@@ -279,6 +304,7 @@ function login(){
         loadEstimateList();
       loadProjectsForSelect();
         loadNewEstimateNo(); // ←これ追加
+        addDetailRow();
 
       }else{
         document.getElementById("msg").innerText =
@@ -406,12 +432,80 @@ function openPdf(url){
     window.open(url, "_blank");
   }
 }
+function addDetailRow(){
+  const tbody = document.getElementById("detailBody");
 
+  const tr = document.createElement("tr");
+
+  tr.innerHTML = `
+    <td><input class="d-item" placeholder="項目"></td>
+    <td><input class="d-spec" placeholder="仕様"></td>
+    <td><input class="d-qty" type="number" value="1" oninput="calcDetailTotals()"></td>
+    <td><input class="d-unit" placeholder="式"></td>
+    <td><input class="d-price" type="number" value="0" oninput="calcDetailTotals()"></td>
+    <td><input class="d-amount" type="number" value="0" readonly></td>
+    <td><input class="d-remark" placeholder="備考"></td>
+    <td><button type="button" onclick="this.closest('tr').remove(); calcDetailTotals();">削除</button></td>
+  `;
+
+  tbody.appendChild(tr);
+  calcDetailTotals();
+}
+
+function calcDetailTotals(){
+  let subtotal = 0;
+
+  document.querySelectorAll("#detailBody tr").forEach(tr => {
+    const qty = Number(tr.querySelector(".d-qty").value || 0);
+    const price = Number(tr.querySelector(".d-price").value || 0);
+    const amount = qty * price;
+
+    tr.querySelector(".d-amount").value = amount;
+    subtotal += amount;
+  });
+
+  const tax = Math.floor(subtotal * 0.1);
+  const total = subtotal + tax;
+
+  document.getElementById("subtotalPreview").innerText = subtotal.toLocaleString();
+  document.getElementById("taxPreview").innerText = tax.toLocaleString();
+  document.getElementById("totalPreview").innerText = total.toLocaleString();
+
+  return { subtotal, tax, total };
+}
+
+function getDetailRows(){
+  const details = [];
+
+  document.querySelectorAll("#detailBody tr").forEach(tr => {
+    const itemName = tr.querySelector(".d-item").value.trim();
+
+    if(itemName){
+      const quantity = Number(tr.querySelector(".d-qty").value || 0);
+      const unitPrice = Number(tr.querySelector(".d-price").value || 0);
+      const amount = quantity * unitPrice;
+
+      details.push({
+        lineType: "DETAIL",
+        itemName: itemName,
+        specification: tr.querySelector(".d-spec").value.trim(),
+        quantity: quantity,
+        unit: tr.querySelector(".d-unit").value.trim(),
+        unitPrice: unitPrice,
+        amount: amount,
+        remark: tr.querySelector(".d-remark").value.trim()
+      });
+    }
+  });
+
+  return details;
+}
 
 function saveEstimate(){
   const projectId = document.getElementById("newProjectId").value;
   const subject = document.getElementById("newSubject").value.trim();
-  const amount = Number(document.getElementById("newAmount").value);
+  const details = getDetailRows();
+  const totals = calcDetailTotals();
   const btn = document.querySelector('button[onclick="saveEstimate()"]');
 
   if(!projectId){
@@ -419,18 +513,21 @@ function saveEstimate(){
     return;
   }
 
-  if(!subject || !amount){
-    alert("件名と金額を入力してください");
+  if(!subject){
+    alert("件名を入力してください");
     return;
   }
 
-  // ローディング初期化
+  if(details.length === 0){
+    alert("明細を1行以上入力してください");
+    return;
+  }
+
   document.getElementById("loadingLayer").style.display = "block";
   document.getElementById("spinner").style.display = "block";
   document.getElementById("successIcon").style.display = "none";
   document.getElementById("loadingText").innerText = "保存中...";
 
-  // ボタン連打防止
   btn.disabled = true;
   btn.innerText = "保存中...";
 
@@ -446,7 +543,11 @@ function saveEstimate(){
       companyId: currentUser.companyId,
       projectId: projectId,
       subject: subject,
-      amount: amount,
+      amount: totals.subtotal,
+      subtotal: totals.subtotal,
+      tax: totals.tax,
+      total: totals.total,
+      details: details,
       estimateNo: window.currentEstimateNo,
       createdBy: currentUser.userName
     })
@@ -461,8 +562,11 @@ function saveEstimate(){
 
       document.getElementById("newProjectId").value = "";
       document.getElementById("newSubject").value = "";
-      document.getElementById("newAmount").value = "";
       document.getElementById("selectedCustomer").innerText = "顧客：-";
+
+      document.getElementById("detailBody").innerHTML = "";
+      addDetailRow();
+      calcDetailTotals();
 
       loadEstimateList();
       loadNewEstimateNo();
@@ -499,7 +603,6 @@ function saveEstimate(){
     console.error(err);
   });
 }
-
  function loadProjectsForSelect(){
   const select = document.getElementById("newProjectId");
   if(!select || !currentUser) return;
