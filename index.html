@@ -304,7 +304,7 @@ function login(){
         loadEstimateList();
       loadProjectsForSelect();
         loadNewEstimateNo(); // ←これ追加
-        addDetailRow();
+        initDetailRows();
 
       }else{
         document.getElementById("msg").innerText =
@@ -432,26 +432,54 @@ function openPdf(url){
     window.open(url, "_blank");
   }
 }
-function addDetailRow(){
+function addDetailRow(copyData){
   const tbody = document.getElementById("detailBody");
-
   const tr = document.createElement("tr");
 
   tr.innerHTML = `
-    <td><input class="d-item" placeholder="項目"></td>
-    <td><input class="d-spec" placeholder="仕様"></td>
-    <td><input class="d-qty" type="number" value="1" oninput="calcDetailTotals()"></td>
-    <td><input class="d-unit" placeholder="式"></td>
-    <td><input class="d-price" type="number" value="0" oninput="calcDetailTotals()"></td>
+    <td><input class="d-item" placeholder="項目" value="${copyData?.itemName || ""}"></td>
+    <td><input class="d-spec" placeholder="仕様" value="${copyData?.specification || ""}"></td>
+    <td><input class="d-qty" type="number" value="${copyData?.quantity || 1}" oninput="calcDetailTotals()"></td>
+    <td><input class="d-unit" placeholder="式" value="${copyData?.unit || ""}"></td>
+    <td><input class="d-price" type="number" value="${copyData?.unitPrice || 0}" oninput="calcDetailTotals()"></td>
     <td><input class="d-amount" type="number" value="0" readonly></td>
-    <td><input class="d-remark" placeholder="備考"></td>
-    <td><button type="button" onclick="this.closest('tr').remove(); calcDetailTotals();">削除</button></td>
+    <td><input class="d-remark" placeholder="備考" value="${copyData?.remark || ""}"></td>
+    <td>
+      <button type="button" onclick="copyDetailRow(this)">複製</button>
+      <button type="button" onclick="this.closest('tr').remove(); calcDetailTotals();">削除</button>
+    </td>
   `;
 
   tbody.appendChild(tr);
   calcDetailTotals();
 }
 
+function copyDetailRow(btn){
+  const tr = btn.closest("tr");
+
+  const data = {
+    itemName: tr.querySelector(".d-item").value,
+    specification: tr.querySelector(".d-spec").value,
+    quantity: tr.querySelector(".d-qty").value,
+    unit: tr.querySelector(".d-unit").value,
+    unitPrice: tr.querySelector(".d-price").value,
+    remark: tr.querySelector(".d-remark").value
+  };
+
+  addDetailRow(data);
+}  
+
+function initDetailRows(){
+  const tbody = document.getElementById("detailBody");
+  tbody.innerHTML = "";
+
+  for(let i = 0; i < 5; i++){
+    addDetailRow();
+  }
+
+  calcDetailTotals();
+}
+  
 function calcDetailTotals(){
   let subtotal = 0;
 
@@ -564,10 +592,8 @@ function saveEstimate(){
       document.getElementById("newSubject").value = "";
       document.getElementById("selectedCustomer").innerText = "顧客：-";
 
-      document.getElementById("detailBody").innerHTML = "";
-      addDetailRow();
-      calcDetailTotals();
-
+      initDetailRows();
+      
       loadEstimateList();
       loadNewEstimateNo();
 
