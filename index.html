@@ -188,7 +188,7 @@ button{
   <input id="newSubject" placeholder="件名（例：内装工事）">
   <input id="newAmount" placeholder="金額">
 
-  <button onclick="saveEstimate()">保存</button>
+  <button onclick="()">保存</button>
 
 </div>
 
@@ -386,29 +386,34 @@ function saveEstimate(){
   })
   .then(res => res.json())
   .then(res => {
-    if(res.success){
-      alert("保存とPDF作成が完了しました");
 
+    if(res.success){
+
+      alert("保存＆PDF作成しました");
+
+      // 入力クリア
       document.getElementById("newProjectId").value = "";
       document.getElementById("newSubject").value = "";
       document.getElementById("newAmount").value = "";
       document.getElementById("selectedCustomer").innerText = "顧客：-";
 
+      // 一覧更新
       loadEstimateList();
       loadNewEstimateNo();
 
-      // PDFを自動で開きたい場合
+      // 🔥ここが本命：PDF自動オープン
       if(res.pdfUrl){
         window.open(res.pdfUrl, "_blank");
       }
 
     }else{
-      alert("保存に失敗しました");
+      alert("保存失敗");
       console.log(res);
     }
+
   })
   .catch(err => {
-    alert("通信エラーです");
+    alert("通信エラー");
     console.error(err);
   });
 }
