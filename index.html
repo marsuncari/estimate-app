@@ -191,6 +191,59 @@ button{
   70%{transform:scale(1.2);}
   100%{transform:scale(1);}
 }  
+
+ button.edit-btn{
+  background:#1976d2 !important;
+  color:#fff !important;
+  border:none;
+  padding:8px 14px;
+  border-radius:10px;
+  font-weight:bold;
+}
+
+button.edit-btn:hover{
+  background:#1565c0 !important;
+}
+
+button.invoice-btn{
+  white-space: nowrap;
+  padding:8px 14px;
+  border-radius:10px;
+  background:#2e7d32;
+  color:#fff;
+  border:none;
+  font-weight:bold;
+}  
+
+.action-btns{
+  display:flex;
+  gap:6px;
+}
+
+.copy-btn{
+  background:#1976d2;
+  color:#fff;
+  border:none;
+  padding:6px 10px;
+  border-radius:8px;
+}
+
+.delete-btn{
+  background:#c62828;
+  color:#fff;
+  border:none;
+  padding:6px 10px;
+  border-radius:8px;
+}  
+
+button{
+  cursor:pointer;
+  transition:0.2s;
+}
+
+button:hover{
+  transform:translateY(-1px);
+}  
 </style>
 </head>
 <body>
@@ -455,9 +508,9 @@ function renderEstimateList(){
       </td>
 
         <td>
-  <button onclick="event.stopPropagation(); createInvoiceFromEstimateWeb('${row.estimateId}')">
-    請求書作成
-  </button>
+  <button class="invoice-btn" onclick="event.stopPropagation(); createInvoiceFromEstimateWeb('${row.estimateId}')">
+  請求書作成
+</button>
 </td>
       </tr>
     `;
@@ -505,9 +558,11 @@ function addDetailRow(copyData){
     <td><input class="d-amount" type="number" value="0" readonly></td>
     <td><input class="d-remark" placeholder="備考" value="${copyData?.remark || ""}" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
     <td>
-      <button type="button" onclick="copyDetailRow(this)">複製</button>
-      <button type="button" onclick="this.closest('tr').remove(); calcDetailTotals();">削除</button>
-    </td>
+  <div class="action-btns">
+    <button type="button" class="copy-btn" onclick="copyDetailRow(this)">複製</button>
+    <button type="button" class="delete-btn" onclick="this.closest('tr').remove(); calcDetailTotals();">削除</button>
+  </div>
+</td>
   `;
 
   tbody.appendChild(tr);
