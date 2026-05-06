@@ -369,20 +369,25 @@ button:hover{
   background:#ef6c00 !important;
 }
 
-/* 開く・編集・請求書ボタン完全統一 */
+/* 開く・編集・請求書・複製 高さ完全統一 */
 #estimateList a,
 #estimateList button{
   display:inline-flex !important;
   align-items:center !important;
   justify-content:center !important;
-  height:40px !important;        /* ←高さ統一 */
-  padding:0 16px !important;     /* ←上下padding消す */
-  line-height:1 !important;
-  border-radius:10px !important;
-  font-weight:bold !important;
-  border:none !important;
+
+  height:40px !important;
+  min-height:40px !important;
   box-sizing:border-box !important;
-  white-space:nowrap !important;
+
+  padding:0 16px !important;
+  line-height:40px !important;
+
+  border:none !important;
+  border-radius:10px !important;
+
+  font-weight:bold !important;
+  vertical-align:middle !important;
 }
 
 /* aタグ特有のズレ修正 */
@@ -391,8 +396,8 @@ button:hover{
 }  
 
 #estimateList td{
-  vertical-align: middle;
-}  
+  vertical-align:middle !important;
+}
   
 </style>
 </head>
