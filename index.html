@@ -145,6 +145,39 @@ button{
   overflow:hidden;
   text-overflow:ellipsis;
 } 
+
+#loadingLayer{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.4);
+  z-index:9999;
+}
+
+.loading-box{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  background:#fff;
+  padding:30px 40px;
+  border-radius:20px;
+  text-align:center;
+}
+
+.spinner{
+  width:40px;
+  height:40px;
+  margin:0 auto 15px;
+  border:4px solid #ddd;
+  border-top:4px solid #16324f;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+  from{transform:rotate(0deg);}
+  to{transform:rotate(360deg);}
+}  
 </style>
 </head>
 <body>
@@ -370,6 +403,9 @@ function saveEstimate(){
     return;
   }
 
+  // 🔥 ローディング表示
+  document.getElementById("loadingLayer").style.display = "block";
+
   fetch(GAS_URL, {
     method: "POST",
     headers: { "Content-Type": "text/plain" },
@@ -386,21 +422,21 @@ function saveEstimate(){
   .then(res => res.json())
   .then(res => {
 
+    // 🔥 ローディング非表示
+    document.getElementById("loadingLayer").style.display = "none";
+
     if(res.success){
 
       alert("保存＆PDF作成しました");
 
-      // 入力クリア
       document.getElementById("newProjectId").value = "";
       document.getElementById("newSubject").value = "";
       document.getElementById("newAmount").value = "";
       document.getElementById("selectedCustomer").innerText = "顧客：-";
 
-      // 一覧更新
       loadEstimateList();
       loadNewEstimateNo();
 
-      // 🔥ここが本命：PDF自動オープン
       if(res.pdfUrl){
         window.open(res.pdfUrl, "_blank");
       }
@@ -412,11 +448,13 @@ function saveEstimate(){
 
   })
   .catch(err => {
+    // 🔥 エラーでも必ず消す
+    document.getElementById("loadingLayer").style.display = "none";
+
     alert("通信エラー");
     console.error(err);
   });
 }
-
 
  function loadProjectsForSelect(){
   const select = document.getElementById("newProjectId");
@@ -481,6 +519,19 @@ function loadNewEstimateNo(){
 }  
   
 </script>
+<script>
+  // ←ここにJSがある
+</script>
 
+<!-- 👇ここに追加 -->
+<div id="loadingLayer" style="display:none;">
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <div id="loadingText">保存中...</div>
+  </div>
+</div>
+
+</body>
+</html>
 </body>
 </html>
