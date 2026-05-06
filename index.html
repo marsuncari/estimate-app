@@ -437,13 +437,13 @@ function addDetailRow(copyData){
   const tr = document.createElement("tr");
 
  tr.innerHTML = `
-  <td><input class="d-item" placeholder="項目" value="${copyData?.itemName || ""}" onkeydown="handleEnterKey(event)"></td>
-  <td><input class="d-spec" placeholder="仕様" value="${copyData?.specification || ""}" onkeydown="handleEnterKey(event)"></td>
-  <td><input class="d-qty" type="number" value="${copyData?.quantity || 1}" oninput="calcDetailTotals()" onkeydown="handleEnterKey(event)"></td>
-  <td><input class="d-unit" placeholder="式" value="${copyData?.unit || ""}" onkeydown="handleEnterKey(event)"></td>
-  <td><input class="d-price" type="number" value="${copyData?.unitPrice || 0}" oninput="calcDetailTotals()" onkeydown="handleEnterKey(event)"></td>
+  <td><input class="d-item" placeholder="項目" value="${copyData?.itemName || ""}" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
+  <td><input class="d-spec" placeholder="仕様" value="${copyData?.specification || ""}" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
+  <td><input class="d-qty" type="number" value="${copyData?.quantity || 1}" oninput="calcDetailTotals()" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
+  <td><input class="d-unit" placeholder="式" value="${copyData?.unit || ""}" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
+  <td><input class="d-price" type="number" value="${copyData?.unitPrice || 0}" oninput="calcDetailTotals()" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
   <td><input class="d-amount" type="number" value="0" readonly></td>
-  <td><input class="d-remark" placeholder="備考" value="${copyData?.remark || ""}" onkeydown="handleEnterKey(event)"></td>
+  <td><input class="d-remark" placeholder="備考" value="${copyData?.remark || ""}" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
   <td>
     <button type="button" onclick="copyDetailRow(this)">複製</button>
     <button type="button" onclick="this.closest('tr').remove(); calcDetailTotals();">削除</button>
@@ -494,6 +494,50 @@ function handleEnterKey(e){
     }
   }
 }
+
+function handleArrowKey(e){
+  if(e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+
+  e.preventDefault();
+
+  const current = e.target;
+  const tr = current.closest("tr");
+  const allRows = Array.from(document.querySelectorAll("#detailBody tr"));
+  const rowIndex = allRows.indexOf(tr);
+
+  const currentInputs = Array.from(tr.querySelectorAll("input:not([readonly])"));
+  const colIndex = currentInputs.indexOf(current);
+
+  if(colIndex === -1) return;
+
+  let targetRow = null;
+
+  if(e.key === "ArrowDown"){
+    targetRow = allRows[rowIndex + 1];
+
+    // 最終行で↓を押したら新規行追加
+    if(!targetRow){
+      addDetailRow();
+      const updatedRows = Array.from(document.querySelectorAll("#detailBody tr"));
+      targetRow = updatedRows[rowIndex + 1];
+    }
+  }
+
+  if(e.key === "ArrowUp"){
+    targetRow = allRows[rowIndex - 1];
+  }
+
+  if(!targetRow) return;
+
+  const targetInputs = Array.from(targetRow.querySelectorAll("input:not([readonly])"));
+  const targetInput = targetInputs[colIndex];
+
+  if(targetInput){
+    targetInput.focus();
+    targetInput.select();
+  }
+}
+  
 function copyDetailRow(btn){
   const tr = btn.closest("tr");
 
@@ -509,13 +553,13 @@ function copyDetailRow(btn){
   const newTr = document.createElement("tr");
 
   newTr.innerHTML = `
-    <td><input class="d-item" value="${data.itemName}" onkeydown="handleEnterKey(event)"></td>
-    <td><input class="d-spec" value="${data.specification}" onkeydown="handleEnterKey(event)"></td>
-    <td><input class="d-qty" type="number" value="${data.quantity}" oninput="calcDetailTotals()" onkeydown="handleEnterKey(event)"></td>
-    <td><input class="d-unit" value="${data.unit}" onkeydown="handleEnterKey(event)"></td>
-    <td><input class="d-price" type="number" value="${data.unitPrice}" oninput="calcDetailTotals()" onkeydown="handleEnterKey(event)"></td>
+    <td><input class="d-item" value="${data.itemName}" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
+    <td><input class="d-spec" value="${data.specification}" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
+    <td><input class="d-qty" type="number" value="${data.quantity}" oninput="calcDetailTotals()" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
+    <td><input class="d-unit" value="${data.unit}" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
+    <td><input class="d-price" type="number" value="${data.unitPrice}" oninput="calcDetailTotals()" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
     <td><input class="d-amount" type="number" readonly></td>
-    <td><input class="d-remark" value="${data.remark}" onkeydown="handleEnterKey(event)"></td>
+    <td><input class="d-remark" value="${data.remark}" onkeydown="handleEnterKey(event); handleArrowKey(event)"></td>
     <td>
       <button type="button" onclick="copyDetailRow(this)">複製</button>
       <button type="button" onclick="this.closest('tr').remove(); calcDetailTotals();">削除</button>
