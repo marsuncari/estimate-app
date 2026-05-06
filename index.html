@@ -631,6 +631,7 @@ function renderEstimateList(){
         <th>PDF</th>
         <th>編集</th>
 　　　　 <th>請求書</th>
+        <th>複製</th>
       </tr>
   `;
 
@@ -661,6 +662,12 @@ function renderEstimateList(){
   <button class="invoice-btn" onclick="event.stopPropagation(); createInvoiceFromEstimateWeb('${row.estimateId}')">
   請求書作成
 </button>
+<td>
+  <button class="copy-estimate-btn"
+    onclick="event.stopPropagation(); duplicateEstimate('${row.estimateId}')">
+    複製
+  </button>
+</td>
 </td>
       </tr>
     `;
@@ -1461,6 +1468,45 @@ function saveCustomerFromUI(){
     console.error(err);
   });
 }  
+
+ function duplicateEstimate(estimateId){
+
+  if(!confirm("この見積を複製しますか？")){
+    return;
+  }
+
+  fetch(GAS_URL,{
+    method:"POST",
+    headers:{ "Content-Type":"text/plain" },
+    body:JSON.stringify({
+      action:"duplicateEstimate",
+      estimateId:estimateId,
+      userName:currentUser.userName
+    })
+  })
+  .then(res=>res.json())
+  .then(res=>{
+
+    if(res.success){
+
+      alert("複製しました。内容を編集してください。");
+
+      loadEstimateList();
+
+      // 複製した見積をそのまま編集画面へ
+      editEstimate(res.newEstimateId);
+
+    }else{
+      alert("複製失敗");
+      console.log(res);
+    }
+
+  })
+  .catch(err=>{
+    alert("通信エラー");
+    console.error(err);
+  });
+}
   
 </script>
 <script>
