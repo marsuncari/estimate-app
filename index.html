@@ -509,19 +509,19 @@ function copyDetailRow(btn){
   const newTr = document.createElement("tr");
 
   newTr.innerHTML = `
-    <td><input class="d-item" onkeydown="handleEnterKey(event)"></td>
-    <td><input class="d-spec" onkeydown="handleEnterKey(event)"></td>
-    <td><input class="d-qty" type="number" onkeydown="handleEnterKey(event)"></td>
-    <td><input class="d-unit" onkeydown="handleEnterKey(event)"></td>
-    <td><input class="d-price" type="number" onkeydown="handleEnterKey(event)"></td>
-    <td><input class="d-amount" readonly></td>
-    <td><input class="d-remark" onkeydown="handleEnterKey(event)"></td>
+    <td><input class="d-item" value="${data.itemName}" onkeydown="handleEnterKey(event)"></td>
+    <td><input class="d-spec" value="${data.specification}" onkeydown="handleEnterKey(event)"></td>
+    <td><input class="d-qty" type="number" value="${data.quantity}" oninput="calcDetailTotals()" onkeydown="handleEnterKey(event)"></td>
+    <td><input class="d-unit" value="${data.unit}" onkeydown="handleEnterKey(event)"></td>
+    <td><input class="d-price" type="number" value="${data.unitPrice}" oninput="calcDetailTotals()" onkeydown="handleEnterKey(event)"></td>
+    <td><input class="d-amount" type="number" readonly></td>
+    <td><input class="d-remark" value="${data.remark}" onkeydown="handleEnterKey(event)"></td>
     <td>
       <button type="button" onclick="copyDetailRow(this)">複製</button>
       <button type="button" onclick="this.closest('tr').remove(); calcDetailTotals();">削除</button>
     </td>
   `;
-
+  
   // 🔥 ここがポイント（直下に追加）
   tr.after(newTr);
 
