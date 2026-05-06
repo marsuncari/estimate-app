@@ -219,6 +219,24 @@ button{
    <div style="margin-top:20px; padding:15px; background:#f1f5f9; border-radius:10px;">
   <h3>新規見積作成</h3>
 
+   <button type="button" onclick="toggleProjectForm()">＋ 新規案件追加</button>
+
+   <div id="projectForm" style="display:none; margin-top:15px; padding:15px; background:#fff; border-radius:10px;">
+  <h4>新規案件追加</h4>
+
+  <select id="projectCustomerId">
+    <option value="">顧客を選択してください</option>
+  </select>
+
+  <input id="projectName" placeholder="案件名">
+  <input id="constructionName" placeholder="工事内容">
+  <input id="siteName" placeholder="現場名">
+  <input id="siteAddress" placeholder="現場住所">
+  <input id="projectPaymentTerms" placeholder="支払い条件" value="ご請求書発行後1ヶ月以内">
+
+  <button type="button" onclick="saveProjectFromEstimate()">案件を保存</button>
+</div>  
+
    <select id="newProjectId">
   <option value="">案件を選択してください</option>
 　　</select>
@@ -1063,6 +1081,60 @@ function editEstimate(estimateId){
       alert("通信エラー");
       console.error(err);
     });
+} 
+
+function toggleProjectForm(){
+  const form = document.getElementById("projectForm");
+  form.style.display = form.style.display === "none" ? "block" : "none";
+}
+
+function saveProjectFromEstimate(){
+  const customerId = document.getElementById("projectCustomerId").value;
+  const projectName = document.getElementById("projectName").value.trim();
+
+  if(!customerId){
+    alert("顧客を選択してください");
+    return;
+  }
+
+  if(!projectName){
+    alert("案件名を入力してください");
+    return;
+  }
+
+  fetch(GAS_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain" },
+    body: JSON.stringify({
+      action: "saveProject",
+      companyId: currentUser.companyId,
+      customerId: customerId,
+      projectName: projectName,
+      constructionName: document.getElementById("constructionName").value.trim(),
+      siteName: document.getElementById("siteName").value.trim(),
+      siteAddress: document.getElementById("siteAddress").value.trim(),
+      paymentTerms: document.getElementById("projectPaymentTerms").value.trim(),
+      status: "進行中",
+      notes: "",
+      createdBy: currentUser.userName,
+      updatedBy: currentUser.userName
+    })
+  })
+  .then(res => res.json())
+  .then(res => {
+    if(res.success){
+      alert("案件を追加しました");
+      document.getElementById("projectForm").style.display = "none";
+      loadProjectsForSelect();
+    }else{
+      alert("案件保存に失敗しました");
+      console.log(res);
+    }
+  })
+  .catch(err => {
+    alert("通信エラー");
+    console.error(err);
+  });
 }  
   
 </script>
