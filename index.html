@@ -178,6 +178,19 @@ button{
   from{transform:rotate(0deg);}
   to{transform:rotate(360deg);}
 }  
+
+.checkmark{
+  font-size:48px;
+  color:#2e7d32;
+  margin-bottom:10px;
+  animation:pop .4s ease;
+}
+
+@keyframes pop{
+  0%{transform:scale(0);}
+  70%{transform:scale(1.2);}
+  100%{transform:scale(1);}
+}  
 </style>
 </head>
 <body>
@@ -392,6 +405,7 @@ function saveEstimate(){
   const projectId = document.getElementById("newProjectId").value;
   const subject = document.getElementById("newSubject").value.trim();
   const amount = Number(document.getElementById("newAmount").value);
+  const btn = document.querySelector('button[onclick="saveEstimate()"]');
 
   if(!projectId){
     alert("案件を選択してください");
@@ -403,14 +417,19 @@ function saveEstimate(){
     return;
   }
 
-  // 🔥 ローディング表示
+  // ローディング初期化
   document.getElementById("loadingLayer").style.display = "block";
+  document.getElementById("spinner").style.display = "block";
+  document.getElementById("successIcon").style.display = "none";
+  document.getElementById("loadingText").innerText = "保存中...";
 
- document.getElementById("loadingText").innerText = "保存中...";
+  // ボタン連打防止
+  btn.disabled = true;
+  btn.innerText = "保存中...";
 
-setTimeout(()=>{
-  document.getElementById("loadingText").innerText = "PDF作成中...";
-}, 800);
+  setTimeout(()=>{
+    document.getElementById("loadingText").innerText = "PDF作成中...";
+  }, 800);
 
   fetch(GAS_URL, {
     method: "POST",
@@ -427,19 +446,12 @@ setTimeout(()=>{
   })
   .then(res => res.json())
   .then(res => {
-
-    // 🔥 ローディング非表示
-    document.getElementById("loadingLayer").style.display = "none";
-
     if(res.success){
 
+      document.getElementById("spinner").style.display = "none";
+      document.getElementById("successIcon").style.display = "block";
       document.getElementById("loadingText").innerText = "完了しました";
 
-setTimeout(()=>{
-  document.getElementById("loadingLayer").style.display = "none";
-}, 800);
-
-      
       document.getElementById("newProjectId").value = "";
       document.getElementById("newSubject").value = "";
       document.getElementById("newAmount").value = "";
@@ -452,18 +464,29 @@ setTimeout(()=>{
         window.open(res.pdfUrl, "_blank");
       }
 
+      setTimeout(()=>{
+        document.getElementById("loadingLayer").style.display = "none";
+        document.getElementById("spinner").style.display = "block";
+        document.getElementById("successIcon").style.display = "none";
+        document.getElementById("loadingText").innerText = "保存中...";
+
+        btn.disabled = false;
+        btn.innerText = "保存";
+      }, 1000);
+
     }else{
+      document.getElementById("loadingLayer").style.display = "none";
+      btn.disabled = false;
+      btn.innerText = "保存";
+
       alert("保存失敗");
       console.log(res);
     }
-
   })
   .catch(err => {
-    // 🔥 エラーでも必ず消す
     document.getElementById("loadingLayer").style.display = "none";
-
     btn.disabled = false;
-  btn.innerText = "保存";
+    btn.innerText = "保存";
 
     alert("通信エラー");
     console.error(err);
@@ -540,8 +563,16 @@ function loadNewEstimateNo(){
 <!-- 👇ここに追加 -->
 <div id="loadingLayer" style="display:none;">
   <div class="loading-box">
-    <div class="spinner"></div>
+
+    <!-- くるくる -->
+    <div id="spinner" class="spinner"></div>
+
+    <!-- チェック（最初は非表示） -->
+    <div id="successIcon" class="checkmark" style="display:none;">✓</div>
+
+    <!-- テキスト -->
     <div id="loadingText">保存中...</div>
+
   </div>
 </div>
 
