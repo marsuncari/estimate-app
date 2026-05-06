@@ -466,8 +466,27 @@ function copyDetailRow(btn){
     remark: tr.querySelector(".d-remark").value
   };
 
-  addDetailRow(data);
-}  
+  const newTr = document.createElement("tr");
+
+  newTr.innerHTML = `
+    <td><input class="d-item" value="${data.itemName}"></td>
+    <td><input class="d-spec" value="${data.specification}"></td>
+    <td><input class="d-qty" type="number" value="${data.quantity}" oninput="calcDetailTotals()"></td>
+    <td><input class="d-unit" value="${data.unit}"></td>
+    <td><input class="d-price" type="number" value="${data.unitPrice}" oninput="calcDetailTotals()"></td>
+    <td><input class="d-amount" type="number" readonly></td>
+    <td><input class="d-remark" value="${data.remark}"></td>
+    <td>
+      <button type="button" onclick="copyDetailRow(this)">複製</button>
+      <button type="button" onclick="this.closest('tr').remove(); calcDetailTotals();">削除</button>
+    </td>
+  `;
+
+  // 🔥 ここがポイント（直下に追加）
+  tr.after(newTr);
+
+  calcDetailTotals();
+}
 
 function initDetailRows(){
   const tbody = document.getElementById("detailBody");
