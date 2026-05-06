@@ -406,6 +406,12 @@ function saveEstimate(){
   // 🔥 ローディング表示
   document.getElementById("loadingLayer").style.display = "block";
 
+ document.getElementById("loadingText").innerText = "保存中...";
+
+setTimeout(()=>{
+  document.getElementById("loadingText").innerText = "PDF作成中...";
+}, 800);
+
   fetch(GAS_URL, {
     method: "POST",
     headers: { "Content-Type": "text/plain" },
@@ -427,8 +433,13 @@ function saveEstimate(){
 
     if(res.success){
 
-      alert("保存＆PDF作成しました");
+      document.getElementById("loadingText").innerText = "完了しました";
 
+setTimeout(()=>{
+  document.getElementById("loadingLayer").style.display = "none";
+}, 800);
+
+      
       document.getElementById("newProjectId").value = "";
       document.getElementById("newSubject").value = "";
       document.getElementById("newAmount").value = "";
@@ -450,6 +461,9 @@ function saveEstimate(){
   .catch(err => {
     // 🔥 エラーでも必ず消す
     document.getElementById("loadingLayer").style.display = "none";
+
+    btn.disabled = false;
+  btn.innerText = "保存";
 
     alert("通信エラー");
     console.error(err);
